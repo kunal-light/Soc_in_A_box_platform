@@ -1,0 +1,30 @@
+<div class="navbar-custom">
+
+    <h2>
+        {% block page_title %}
+        Dashboard
+        {% endblock %}
+    </h2>
+
+    <div class="d-flex align-items-center gap-3">
+
+        {% if session.get("admin_logged_in") %}
+
+            <span>
+                <i class="fa-solid fa-user-shield"></i>
+                {{ session.get("admin_username") }}
+            </span>
+
+            <a href="{{ url_for('logout') }}"
+               class="btn btn-sm btn-outline-danger">
+
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>

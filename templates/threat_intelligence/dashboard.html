@@ -1,0 +1,315 @@
+{% extends "layout.html" %}
+
+{% block title %}Threat Intelligence | SOC-in-a-Box{% endblock %}
+{% block page_title %}Threat Intelligence{% endblock %}
+
+{% block content %}
+
+{% if request.args.get('sync_status') == 'success' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>AlienVault OTX synchronization completed.</strong>
+    {{ request.args.get('fetched', '0') }} valid indicators fetched and
+    {{ request.args.get('inserted', '0') }} new IOCs inserted.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% elif request.args.get('sync_status') == 'failed' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>AlienVault OTX synchronization failed.</strong>
+    {{ request.args.get('sync_error', 'Unknown error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h5 class="mb-1">Threat Feed Synchronization</h5>
+            <p class="text-muted mb-0">
+                Fetch the latest subscribed AlienVault OTX pulse indicators and store new IOCs in PostgreSQL.
+            </p>
+        </div>
+        <form method="POST" action="{{ url_for('sync_otx_feed') }}"
+              onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerText='Synchronizing...';">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-rotate me-2"></i>Sync AlienVault OTX
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="container-fluid">
+
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>Total Intelligence IOCs</small>
+                    <h2>{{ total_iocs }}</h2>
+                    <i class="fa-solid fa-shield-halved fa-2x float-end text-primary"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>AlienVault OTX IOCs</small>
+                    <h2>{{ otx_count }}</h2>
+                    <i class="fa-solid fa-satellite-dish fa-2x float-end text-info"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>AbuseIPDB IOCs</small>
+                    <h2>{{ abuseipdb_count }}</h2>
+                    <i class="fa-solid fa-ban fa-2x float-end text-danger"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>Last IOC Ingestion</small>
+                    <div class="mt-3">
+                        <strong>{{ last_ingestion if last_ingestion else "No data" }}</strong>
+                    </div>
+                    <i class="fa-solid fa-clock-rotate-left fa-2x float-end text-warning"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">Threat Feed Status</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-secondary">
+                        <div>
+                            <strong>AlienVault OTX</strong>
+                            <div class="small text-muted">Open Threat Exchange intelligence feed</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge {% if otx_count > 0 %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if otx_count > 0 %}Data Available{% else %}No Stored Data{% endif %}
+                            </span>
+                            <div class="small mt-2">{{ otx_count }} IOCs</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center py-3">
+                        <div>
+                            <strong>AbuseIPDB</strong>
+                            <div class="small text-muted">IP reputation and abuse intelligence</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge {% if abuseipdb_count > 0 %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if abuseipdb_count > 0 %}Data Available{% else %}No Stored Data{% endif %}
+                            </span>
+                            <div class="small mt-2">{{ abuseipdb_count }} IOCs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">IOC Type Distribution</div>
+                <div class="card-body">
+                    <canvas id="feedTypeChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">Intelligence Source Distribution</div>
+                <div class="card-body">
+                    <canvas id="sourceChart" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">Severity Summary</div>
+                <ul class="list-group list-group-flush">
+                    {% for severity in severity_stats %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ severity[0] }}</span>
+                        <span class="badge
+                            {% if severity[0]|upper in ['CRITICAL','HIGH'] %}bg-danger
+                            {% elif severity[0]|upper == 'MEDIUM' %}bg-warning text-dark
+                            {% elif severity[0]|upper == 'LOW' %}bg-success
+                            {% else %}bg-secondary{% endif %} rounded-pill">
+                            {{ severity[1] }}
+                        </span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item">No severity data available.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Recorded Feed Synchronization Health</div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <strong>AlienVault OTX</strong>
+                    {% if otx_sync %}
+                    <div class="mt-2">
+                        <span class="badge {% if otx_sync[0]|upper == 'SUCCESS' %}bg-success{% else %}bg-danger{% endif %}">{{ otx_sync[0] }}</span>
+                        <span class="ms-2">{{ otx_sync[1] }} records processed</span>
+                    </div>
+                    <div class="small text-muted mt-2">Last sync: {{ otx_sync[3] }}</div>
+                    {% else %}
+                    <div class="mt-2"><span class="badge bg-secondary">No Sync Recorded</span></div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <strong>AbuseIPDB</strong>
+                    {% if abuse_sync %}
+                    <div class="mt-2">
+                        <span class="badge {% if abuse_sync[0]|upper == 'SUCCESS' %}bg-success{% else %}bg-danger{% endif %}">{{ abuse_sync[0] }}</span>
+                        <span class="ms-2">{{ abuse_sync[1] }} records processed</span>
+                    </div>
+                    <div class="small text-muted mt-2">Last sync: {{ abuse_sync[3] }}</div>
+                    {% else %}
+                    <div class="mt-2"><span class="badge bg-secondary">No Sync Recorded</span></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Recent Threat Intelligence</span>
+            <a href="{{ url_for('ioc_explorer') }}" class="btn btn-sm btn-primary">
+                Open IOC Explorer
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Indicator</th>
+                        <th>Type</th>
+                        <th>Source</th>
+                        <th>Severity</th>
+                        <th>Ingested</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ioc in recent_intelligence %}
+                    <tr>
+                        <td><code class="ioc-value">{{ ioc[0] }}</code></td>
+                        <td>{{ ioc[1] or "Unknown" }}</td>
+                        <td>{{ ioc[2] or "Unknown" }}</td>
+                        <td>
+                            <span class="badge
+                                {% if ioc[3]|upper in ['CRITICAL','HIGH'] %}bg-danger
+                                {% elif ioc[3]|upper == 'MEDIUM' %}bg-warning text-dark
+                                {% elif ioc[3]|upper == 'LOW' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ ioc[3] or "Unknown" }}
+                            </span>
+                        </td>
+                        <td>{{ ioc[4] }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            No threat intelligence records available.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script id="threat-intelligence-data" type="application/json">
+{{ {
+    "source_labels": source_labels,
+    "source_values": source_values,
+    "type_labels": type_labels,
+    "type_values": type_values
+} | tojson }}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const dataElement = document.getElementById("threat-intelligence-data");
+    if (!dataElement || typeof Chart === "undefined") return;
+
+    const data = JSON.parse(dataElement.textContent);
+
+    const sourceCanvas = document.getElementById("sourceChart");
+    if (sourceCanvas) {
+        new Chart(sourceCanvas, {
+            type: "bar",
+            data: {
+                labels: data.source_labels,
+                datasets: [{
+                    label: "IOCs",
+                    data: data.source_values,
+                    backgroundColor: "rgba(59, 130, 246, 0.75)",
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+    }
+
+    const typeCanvas = document.getElementById("feedTypeChart");
+    if (typeCanvas) {
+        new Chart(typeCanvas, {
+            type: "doughnut",
+            data: {
+                labels: data.type_labels,
+                datasets: [{
+                    data: data.type_values,
+                    backgroundColor: [
+                        "#3b82f6", "#22c55e", "#f59e0b",
+                        "#ef4444", "#8b5cf6", "#06b6d4"
+                    ],
+                    borderColor: "#1e293b",
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "65%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: { usePointStyle: true, padding: 14 }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

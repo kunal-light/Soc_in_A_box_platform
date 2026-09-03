@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block title %}Settings | SOC-in-a-Box{% endblock %}
+{% block page_title %}Platform Settings{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h4 class="mb-2">SOC-in-a-Box Configuration</h4>
+          <p class="text-muted mb-0">
+            Review platform health and configuration readiness. Secret values are never displayed on this page.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <small>Platform Mode</small>
+          <h4 class="mt-2">{% if config_status.flask_debug %}Development{% else %}Production{% endif %}</h4>
+          <span class="badge {% if config_status.flask_debug %}bg-warning text-dark{% else %}bg-success{% endif %}">
+            {% if config_status.flask_debug %}Debug Enabled{% else %}Debug Disabled{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header">Service Health</div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-secondary">
+            <div><strong>PostgreSQL Database</strong><div class="small text-muted">Primary SOC data store</div></div>
+            <span class="badge {% if config_status.database == 'Connected' %}bg-success{% else %}bg-danger{% endif %}">{{ config_status.database }}</span>
+          </div>
+          {% if db_error %}
+          <div class="alert alert-danger mt-3 mb-0"><small>{{ db_error }}</small></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header">Threat Intelligence API Configuration</div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-secondary">
+            <div><strong>AlienVault OTX</strong><div class="small text-muted">Environment variable: OTX_API_KEY</div></div>
+            <span class="badge {% if config_status.otx_key_configured %}bg-success{% else %}bg-warning text-dark{% endif %}">
+              {% if config_status.otx_key_configured %}Configured{% else %}Not in Environment{% endif %}
+            </span>
+          </div>
+          <div class="d-flex justify-content-between align-items-center py-3">
+            <div><strong>AbuseIPDB</strong><div class="small text-muted">Environment variable: ABUSEIPDB_API_KEY</div></div>
+            <span class="badge {% if config_status.abuseipdb_key_configured %}bg-success{% else %}bg-warning text-dark{% endif %}">
+              {% if config_status.abuseipdb_key_configured %}Configured{% else %}Not in Environment{% endif %}
+            </span>
+          </div>
+          <div class="alert alert-info mt-3 mb-0">
+            API secrets should be stored in environment variables rather than committed to source code.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-4">
+    <div class="card-header">Configuration Roadmap</div>
+    <div class="card-body">
+      <p class="mb-2">Before final deployment we will move database credentials and threat-intelligence API keys into environment variables, add a local <code>.env</code> workflow, and exclude secrets from Git.</p>
+      <p class="text-muted mb-0">This version is intentionally read-only so credentials cannot be exposed or accidentally changed through the browser.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

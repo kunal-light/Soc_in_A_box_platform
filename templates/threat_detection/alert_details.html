@@ -1,0 +1,387 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Alert Details
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>
+            <i class="fa-solid fa-shield-halved text-danger"></i>
+            Alert Details
+        </h2>
+
+        <a href="/threat-detection" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back
+        </a>
+
+    </div>
+
+    <!-- Alert Overview -->
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+                Alert #{{ alert.id }}
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Rule</th>
+                            <td>{{ alert.rule_name }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Type</th>
+                            <td>{{ alert.alert_type }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Severity</th>
+                            <td>
+                                <span class="badge
+                                    {% if alert.severity|upper == 'CRITICAL' %}
+                                        bg-danger
+                                    {% elif alert.severity|upper == 'HIGH' %}
+                                        bg-warning text-dark
+                                    {% elif alert.severity|upper == 'MEDIUM' %}
+                                        bg-info text-dark
+                                    {% else %}
+                                        bg-secondary
+                                    {% endif %}
+                                ">
+                                    {{ alert.severity }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Status</th>
+                            <td>{{ alert.status }}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Detected</th>
+                            <td>{{ alert.detected_at }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Alert ID</th>
+                            <td>{{ alert.id }}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <hr>
+
+            <h5>Description</h5>
+
+            <p>
+                {{ alert.description }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- Risk & MITRE Intelligence -->
+
+    <div class="card shadow mt-4">
+
+        <div class="card-header bg-danger text-white">
+
+            <h5 class="mb-0">
+                <i class="fa-solid fa-brain"></i>
+                Security Intelligence
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3 text-center">
+
+                        <h6>Risk Score</h6>
+
+                        <h2>
+                            {% if alert.risk_score is not none %}
+                                {{ alert.risk_score }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3 text-center">
+
+                        <h6>Risk Level</h6>
+
+                        {% if alert.risk_level %}
+
+                            <span class="badge
+                                {% if alert.risk_level|upper == 'CRITICAL' %}
+                                    bg-danger
+                                {% elif alert.risk_level|upper == 'HIGH' %}
+                                    bg-warning text-dark
+                                {% elif alert.risk_level|upper == 'MEDIUM' %}
+                                    bg-info text-dark
+                                {% elif alert.risk_level|upper == 'LOW' %}
+                                    bg-success
+                                {% else %}
+                                    bg-secondary
+                                {% endif %}
+                            ">
+                                {{ alert.risk_level }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Not available
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3 text-center">
+
+                        <h6>MITRE ATT&CK</h6>
+
+                        {% if alert.mitre_id %}
+
+                            <strong>
+                                {{ alert.mitre_id }}
+                            </strong>
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Not available
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+
+                    <div class="border rounded p-3 text-center">
+
+                        <h6>Technique</h6>
+
+                        {% if alert.mitre_technique %}
+
+                            <strong>
+                                {{ alert.mitre_technique }}
+                            </strong>
+
+                        {% else %}
+
+                            <span class="text-muted">
+                                Not available
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Event Information -->
+
+    <div class="card shadow mt-4">
+
+        <div class="card-header bg-primary text-white">
+
+            <h5 class="mb-0">
+                <i class="fa-solid fa-file-lines"></i>
+                Event Information
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Event Time</th>
+                            <td>{{ alert.event_time }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Source IP</th>
+                            <td>{{ alert.source_ip }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Destination IP</th>
+                            <td>{{ alert.destination_ip }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Hostname</th>
+                            <td>{{ alert.hostname }}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <table class="table">
+
+                        <tr>
+                            <th>Username</th>
+                            <td>{{ alert.username }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Event Type</th>
+                            <td>{{ alert.event_type }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Protocol</th>
+                            <td>{{ alert.protocol }}</td>
+                        </tr>
+
+                        <tr>
+                            <th>Action</th>
+                            <td>{{ alert.action }}</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Raw Log -->
+
+    <div class="card shadow mt-4">
+
+        <div class="card-header bg-secondary text-white">
+
+            <h5 class="mb-0">
+                <i class="fa-solid fa-terminal"></i>
+                Raw Log
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <pre style="white-space: pre-wrap;">{{ alert.raw_message }}</pre>
+
+        </div>
+
+    </div>
+
+
+    <!-- Analyst Actions -->
+
+    <div class="card shadow mt-4 mb-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+                Analyst Actions
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <a href="/threat-detection/investigate/{{ alert.id }}"
+               class="btn btn-warning">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Investigate
+
+            </a>
+
+            <a href="/threat-detection/resolve/{{ alert.id }}"
+               class="btn btn-success">
+
+                <i class="fa-solid fa-check"></i>
+                Resolve
+
+            </a>
+
+            <a href="/threat-detection"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,49 @@
+timestamp,source,message
+2026-07-28T10:00:01,Syslog,<131>Jul 28 10:00:01 web-server sshd[1021]: Failed password for admin from 192.168.5.110 port 52110 ssh2
+2026-07-28T10:00:05,Syslog,<131>Jul 28 10:00:05 web-server sshd[1022]: Failed password for admin from 192.168.5.110 port 52111 ssh2
+2026-07-28T10:00:09,Syslog,<131>Jul 28 10:00:09 web-server sshd[1023]: Failed password for admin from 192.168.5.110 port 52112 ssh2
+2026-07-28T10:00:13,Syslog,<131>Jul 28 10:00:13 web-server sshd[1024]: Failed password for root from 192.168.5.110 port 52113 ssh2
+2026-07-28T10:00:17,Syslog,<131>Jul 28 10:00:17 web-server sshd[1025]: Failed password for root from 192.168.5.110 port 52114 ssh2
+2026-07-28T10:00:21,Syslog,<131>Jul 28 10:00:21 web-server sshd[1026]: Accepted password for admin from 192.168.5.110 port 52115 ssh2
+2026-07-28T10:01:00,Windows,INFO: EventID=4624 (An account was successfully logged on) SubjectUser=SYSTEM TargetUser=user101 Domain=WORKGROUP IP=192.168.1.21
+2026-07-28T10:01:10,Windows,INFO: EventID=4625 (An account failed to log on) SubjectUser=SYSTEM TargetUser=guest Domain=WORKGROUP IP=192.168.1.55
+2026-07-28T10:01:20,Windows,INFO: Windows EventID=4648 (RunAs elevation attempted) User=sysadmin elevated privileges to Administrator
+2026-07-28T10:01:30,Windows,INFO: EventID=4769 Kerberos service ticket requested ClientIP=192.168.1.70
+2026-07-28T10:02:00,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=21
+2026-07-28T10:02:02,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=22
+2026-07-28T10:02:04,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=23
+2026-07-28T10:02:06,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=25
+2026-07-28T10:02:08,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=53
+2026-07-28T10:02:10,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=80
+2026-07-28T10:02:12,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=110
+2026-07-28T10:02:14,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=139
+2026-07-28T10:02:16,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=443
+2026-07-28T10:02:18,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=445
+2026-07-28T10:02:20,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=1433
+2026-07-28T10:02:22,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=3306
+2026-07-28T10:02:24,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=3389
+2026-07-28T10:02:26,Syslog,Firewall: connection_attempt from 192.168.9.15 to 192.168.1.10 port=8080
+2026-07-28T10:03:00,Nginx,"192.168.1.45 - - [28/Jul/2026:10:03:00 +0530] ""GET /index.html HTTP/1.1"" 200"
+2026-07-28T10:03:15,Nginx,"192.168.1.88 - - [28/Jul/2026:10:03:15 +0530] ""GET /login.php?id=1' OR '1'='1 HTTP/1.1"" 500"
+2026-07-28T10:03:20,Nginx,"192.168.1.89 - - [28/Jul/2026:10:03:20 +0530] ""GET /search?q=<script>alert(1)</script> HTTP/1.1"" 200"
+2026-07-28T10:04:00,Wazuh,"{""event_type"":""integrity_check"",""file"":""/etc/passwd"",""action"":""modified""}"
+2026-07-28T10:04:10,Wazuh,"{""event_type"":""process_start"",""process"":""powershell.exe"",""user"":""administrator""}"
+2026-07-28T10:04:20,Wazuh,"{""event_type"":""process_start"",""process"":""cmd.exe"",""user"":""guest""}"
+2026-07-28T10:04:30,Wazuh,"{""event_type"":""integrity_check"",""file"":""/var/www/html/index.php"",""action"":""checked""}"
+2026-07-28T10:05:00,Suricata,"{""event_type"":""alert"",""src_ip"":""192.168.1.55"",""dest_ip"":""185.220.101.22"",""proto"":""TCP"",""alert"":{""signature"":""Trojan Activity"",""severity"":1}}"
+2026-07-28T10:05:05,Suricata,"{""event_type"":""alert"",""src_ip"":""192.168.1.60"",""dest_ip"":""185.220.101.23"",""proto"":""TCP"",""alert"":{""signature"":""Cobalt Strike"",""severity"":1}}"
+2026-07-28T10:05:10,Suricata,"{""event_type"":""alert"",""src_ip"":""192.168.1.61"",""dest_ip"":""185.220.101.24"",""proto"":""TCP"",""alert"":{""signature"":""Reverse Shell"",""severity"":1}}"
+2026-07-28T10:06:00,Syslog,<30>Jul 28 10:06:00 host-pc CRON[812]: (root) CMD (/usr/local/bin/backup.sh)
+2026-07-28T10:06:30,Windows,INFO: EventID=4624 TargetUser=user501 IP=192.168.1.150
+2026-07-28T10:06:40,Windows,INFO: EventID=4625 TargetUser=test IP=192.168.1.151
+2026-07-28T10:06:50,Windows,INFO: Windows EventID=4648 User=operator elevated privileges
+2026-07-28T10:07:00,Nginx,"192.168.1.52 - - [28/Jul/2026:10:07:00 +0530] ""GET /dashboard HTTP/1.1"" 200"
+2026-07-28T10:07:10,Nginx,"192.168.1.53 - - [28/Jul/2026:10:07:10 +0530] ""POST /login HTTP/1.1"" 302"
+2026-07-28T10:07:20,Nginx,"192.168.1.54 - - [28/Jul/2026:10:07:20 +0530] ""GET /admin HTTP/1.1"" 403"
+2026-07-28T10:07:30,Wazuh,"{""event_type"":""process_start"",""process"":""python3"",""user"":""developer""}"
+2026-07-28T10:07:40,Wazuh,"{""event_type"":""integrity_check"",""file"":""/etc/shadow"",""action"":""modified""}"
+2026-07-28T10:08:00,Syslog,<131>Jul 28 10:08:00 web-server sshd[1201]: Failed password for support from 192.168.5.150 port 53001 ssh2
+2026-07-28T10:08:05,Syslog,<131>Jul 28 10:08:05 web-server sshd[1202]: Failed password for support from 192.168.5.150 port 53002 ssh2
+2026-07-28T10:08:10,Syslog,<131>Jul 28 10:08:10 web-server sshd[1203]: Failed password for support from 192.168.5.150 port 53003 ssh2
+2026-07-28T10:08:15,Syslog,<131>Jul 28 10:08:15 web-server sshd[1204]: Failed password for support from 192.168.5.150 port 53004 ssh2
+2026-07-28T10:08:20,Syslog,<131>Jul 28 10:08:20 web-server sshd[1205]: Failed password for support from 192.168.5.150 port 53005 ssh2

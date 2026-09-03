@@ -1,0 +1,597 @@
+/* ==========================================================
+   SOC-in-a-Box Dashboard Theme
+   Version 2.0
+========================================================== */
+
+/* ---------------- Root Variables ---------------- */
+
+:root {
+
+    --bg: #0f172a;
+    --sidebar: #111827;
+    --navbar: #111827;
+
+    --card: #1e293b;
+    --card-hover: #273549;
+
+    --primary: #3b82f6;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #06b6d4;
+
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+
+    --border: #334155;
+
+    --shadow:
+        0 10px 25px rgba(0,0,0,.35);
+
+    --radius: 16px;
+
+}
+
+/* ---------------- Global ---------------- */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html,
+body{
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    font-family:'Inter',sans-serif;
+
+    min-height:100vh;
+
+}
+
+body{
+
+    overflow-x:hidden;
+
+}
+
+/* ---------------- Layout ---------------- */
+
+.wrapper{
+
+    display:flex;
+
+    min-height:100vh;
+
+}
+
+/* ---------------- Sidebar ---------------- */
+
+.sidebar{
+
+    width:270px;
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    bottom:0;
+
+    background:var(--sidebar);
+
+    border-right:1px solid var(--border);
+
+    padding:25px 18px;
+
+    overflow-y:auto;
+
+}
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    font-size:22px;
+
+    font-weight:700;
+
+    color:white;
+
+    margin-bottom:35px;
+
+}
+
+.logo i{
+
+    color:var(--primary);
+
+    font-size:28px;
+
+}
+
+/* ---------------- Sidebar Menu ---------------- */
+
+.sidebar-menu{
+
+    list-style:none;
+
+    padding:0;
+
+    margin:0;
+
+}
+
+.sidebar-menu li{
+
+    margin-bottom:10px;
+
+}
+
+.sidebar-menu a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:14px 18px;
+
+    border-radius:12px;
+
+    color:var(--text-muted);
+
+    text-decoration:none;
+
+    transition:all .25s ease;
+
+    font-weight:500;
+
+}
+
+.sidebar-menu a:hover{
+
+    background:#1f2937;
+
+    color:white;
+
+    transform:translateX(6px);
+
+}
+
+.sidebar-menu a i{
+
+    width:20px;
+
+    text-align:center;
+
+}
+
+/* ---------------- Main ---------------- */
+
+.main-content{
+
+    margin-left:270px;
+
+    width:calc(100% - 270px);
+
+}
+
+/* ---------------- Navbar ---------------- */
+
+.top-navbar{
+
+    height:75px;
+
+    background:var(--navbar);
+
+    border-bottom:1px solid var(--border);
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 30px;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:100;
+
+}
+
+.navbar-left h3{
+
+    margin:0;
+
+    font-weight:700;
+
+    color:white;
+
+}
+
+.navbar-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+/* ---------------- Search ---------------- */
+
+.search-box{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    background:#1e293b;
+
+    border:1px solid var(--border);
+
+    border-radius:12px;
+
+    padding:10px 16px;
+
+}
+
+.search-box i{
+
+    color:var(--text-muted);
+
+}
+
+.search-box input{
+
+    background:none;
+
+    border:none;
+
+    outline:none;
+
+    color:white;
+
+    width:220px;
+
+}
+
+.search-box input::placeholder{
+
+    color:#64748b;
+
+}
+
+/* ---------------- Icon Buttons ---------------- */
+
+.icon-btn{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    border:none;
+
+    background:#1e293b;
+
+    color:white;
+
+    transition:.25s;
+
+}
+
+.icon-btn:hover{
+
+    background:var(--primary);
+
+    transform:translateY(-2px);
+
+}
+
+/* ---------------- Content ---------------- */
+
+.content{
+
+    padding:30px;
+
+}
+
+/* ---------------- Cards ---------------- */
+
+.card{
+
+    background:var(--card);
+
+    border:none;
+
+    border-radius:var(--radius);
+
+    color:white;
+
+    box-shadow:var(--shadow);
+
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-5px);
+
+    background:var(--card-hover);
+
+}
+
+.card-header{
+
+    background:transparent;
+
+    border-bottom:1px solid var(--border);
+
+    color:white;
+
+    font-weight:600;
+
+}
+
+.card-body{
+
+    color:white;
+
+}
+
+/* ---------------- Bootstrap Text ---------------- */
+
+.text-muted{
+
+    color:var(--text-muted)!important;
+
+}
+
+/* ---------------- Buttons ---------------- */
+
+.btn{
+
+    border-radius:10px;
+
+}
+
+.btn-primary{
+
+    background:var(--primary);
+
+    border:none;
+
+}
+
+.btn-primary:hover{
+
+    background:#2563eb;
+
+}
+
+/* ---------------- Alerts ---------------- */
+
+.alert{
+
+    border:none;
+
+    border-radius:14px;
+
+}
+
+/* ---------------- Tables ---------------- */
+
+.table{
+
+    color:white;
+
+    margin-bottom:0;
+
+}
+
+.table thead{
+
+    background:#162133;
+
+}
+
+.table thead th{
+
+    color:#cbd5e1;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+.table tbody td{
+
+    border-color:var(--border);
+
+}
+
+.table tbody tr:hover{
+
+    background:#243244;
+
+}
+
+/* ---------------- Badges ---------------- */
+
+.badge{
+
+    border-radius:8px;
+
+    padding:6px 10px;
+
+    font-weight:600;
+
+}
+
+/* ---------------- List Group ---------------- */
+
+.list-group-item{
+
+    background:transparent;
+
+    color:white;
+
+    border-color:var(--border);
+
+}
+
+/* ---------------- Code ---------------- */
+
+code{
+
+    color:#7dd3fc;
+
+    background:#111827;
+
+    padding:4px 8px;
+
+    border-radius:6px;
+
+}
+
+/* ---------------- Canvas ---------------- */
+
+canvas{
+
+    max-width:100%;
+
+}
+
+/* ---------------- Scrollbar ---------------- */
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#111827;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#475569;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#64748b;
+
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width:992px){
+
+    .sidebar{
+
+        width:80px;
+
+    }
+
+    .logo span{
+
+        display:none;
+
+    }
+
+    .sidebar-menu a{
+
+        justify-content:center;
+
+    }
+
+    .sidebar-menu a span{
+
+        display:none;
+
+    }
+
+    .main-content{
+
+        margin-left:80px;
+
+        width:calc(100% - 80px);
+
+    }
+
+}
+
+@media (max-width:768px){
+
+    .top-navbar{
+
+        flex-direction:column;
+
+        height:auto;
+
+        gap:15px;
+
+        padding:15px;
+
+    }
+
+    .navbar-right{
+
+        width:100%;
+
+        justify-content:space-between;
+
+    }
+
+    .search-box{
+
+        width:100%;
+
+    }
+
+    .search-box input{
+
+        width:100%;
+
+    }
+
+    .content{
+
+        padding:20px;
+
+    }
+
+}
+.admin-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}

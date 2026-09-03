@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block title %}IOC Explorer | SOC-in-a-Box{% endblock %}
+{% block page_title %}IOC Database Explorer{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>Total Matching IOCs</small>
+                    <h2>{{ total }}</h2>
+                    <i class="fa-solid fa-database fa-2x float-end text-primary"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <strong>Threat Intelligence Repository</strong>
+                    <p class="text-muted mb-0 mt-2">
+                        Search and filter indicators stored in the PostgreSQL IOC database.
+                        Results are paginated for efficient handling of large threat-intelligence datasets.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Search & Filters</div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('ioc_explorer') }}">
+                <div class="row g-3">
+                    <div class="col-xl-4 col-md-12">
+                        <label class="form-label">Indicator Search</label>
+                        <input type="text" class="form-control"
+                               name="search" value="{{ search }}"
+                               placeholder="Search IP, domain, URL or hash...">
+                    </div>
+
+                    <div class="col-xl-2 col-md-4">
+                        <label class="form-label">IOC Type</label>
+                        <select class="form-select" name="type">
+                            <option value="">All Types</option>
+                            {% for item in types %}
+                            <option value="{{ item }}" {% if selected_type == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-xl-2 col-md-4">
+                        <label class="form-label">Severity</label>
+                        <select class="form-select" name="severity">
+                            <option value="">All Severities</option>
+                            {% for item in severities %}
+                            <option value="{{ item }}" {% if selected_severity == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-xl-2 col-md-4">
+                        <label class="form-label">Source</label>
+                        <select class="form-select" name="source">
+                            <option value="">All Sources</option>
+                            {% for item in sources %}
+                            <option value="{{ item }}" {% if selected_source == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-xl-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+                        </button>
+                        <a href="{{ url_for('ioc_explorer') }}" class="btn btn-outline-light">
+                            Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span>Indicators of Compromise</span>
+            <span class="badge bg-primary">
+                Page {{ page }} of {{ total_pages }} • {{ total }} Results
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Indicator</th>
+                        <th>Type</th>
+                        <th>Source</th>
+                        <th>Severity</th>
+                        <th>Added</th>
+                        <th>Correlation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for ioc in iocs %}
+                    <tr>
+                        <td>
+                            <code class="ioc-value">{{ ioc[0] }}</code>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ ioc[1] or "Unknown" }}</span>
+                        </td>
+                        <td>{{ ioc[2] or "Unknown" }}</td>
+                        <td>
+                            <span class="badge
+                                {% if ioc[3]|upper in ['CRITICAL', 'HIGH'] %}
+                                    bg-danger
+                                {% elif ioc[3]|upper == 'MEDIUM' %}
+                                    bg-warning text-dark
+                                {% elif ioc[3]|upper == 'LOW' %}
+                                    bg-success
+                                {% else %}
+                                    bg-secondary
+                                {% endif %}">
+                                {{ ioc[3] or "Unknown" }}
+                            </span>
+                        </td>
+                        <td>{{ ioc[4] }}</td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary correlate-btn"
+                                    data-indicator="{{ ioc[0] }}">
+                                Test Match
+                            </button>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            No indicators match the selected filters.
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="card-body border-top border-secondary">
+            <nav aria-label="IOC pagination">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('ioc_explorer', page=page-1, search=search, type=selected_type, severity=selected_severity, source=selected_source) }}">
+                            Previous
+                        </a>
+                    </li>
+
+                    {% set start_page = [1, page - 2]|max %}
+                    {% set end_page = [total_pages, page + 2]|min %}
+
+                    {% for p in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('ioc_explorer', page=p, search=search, type=selected_type, severity=selected_severity, source=selected_source) }}">
+                            {{ p }}
+                        </a>
+                    </li>
+                    {% endfor %}
+
+                    <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                        <a class="page-link"
+                           href="{{ url_for('ioc_explorer', page=page+1, search=search, type=selected_type, severity=selected_severity, source=selected_source) }}">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="correlationToast" class="toast text-bg-dark border border-secondary" role="alert">
+        <div class="toast-header">
+            <strong class="me-auto">Correlation Engine</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body" id="correlationToastBody">
+            Processing indicator...
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll(".correlate-btn").forEach((button) => {
+    button.addEventListener("click", async () => {
+        const indicator = button.dataset.indicator;
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = "Testing...";
+
+        try {
+            const response = await fetch("{{ url_for('correlate') }}", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    indicator: indicator,
+                    source: "IOC Explorer",
+                    details: "Manual correlation test initiated from IOC Explorer"
+                })
+            });
+
+            const data = await response.json();
+            const result = data.result || {};
+            const toastBody = document.getElementById("correlationToastBody");
+
+            if (response.ok && result.matched) {
+                toastBody.textContent =
+                    "Match confirmed for " + indicator +
+                    ". Alert #" + result.alert_id + " created or refreshed.";
+            } else {
+                toastBody.textContent =
+                    "No correlation match was generated for " + indicator + ".";
+            }
+
+            bootstrap.Toast.getOrCreateInstance(
+                document.getElementById("correlationToast")
+            ).show();
+        } catch (error) {
+            document.getElementById("correlationToastBody").textContent =
+                "Correlation request failed: " + error.message;
+            bootstrap.Toast.getOrCreateInstance(
+                document.getElementById("correlationToast")
+            ).show();
+        } finally {
+            button.disabled = false;
+            button.textContent = originalText;
+        }
+    });
+});
+</script>
+{% endblock %}

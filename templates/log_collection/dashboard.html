@@ -1,0 +1,323 @@
+{% extends "layout.html" %}
+
+{% block title %}Log Collection{% endblock %}
+
+{% block page_title %}Log Collection{% endblock %}
+
+{% block content %}
+
+<!-- Your existing Log Collection HTML goes here -->
+
+
+
+<div class="container-fluid">
+
+    <!-- ================= KPI Cards ================= -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>Total Logs</small>
+                   {{ total_uploads }}
+                    <i class="fa-solid fa-file-lines fa-2x float-end text-primary"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>Windows EVTX</small>
+                   {{ windows_logs }}
+                    <i class="fa-brands fa-windows fa-2x float-end text-info"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>Linux / Syslog</small>
+                    {{ linux_logs }}
+                    <i class="fa-brands fa-linux fa-2x float-end text-success"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <small>Registered Sources</small>
+                    {{ registered_sources }}
+                    <i class="fa-solid fa-server fa-2x float-end text-warning"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= Upload + Status ================= -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+
+                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+
+                    Upload Log Files
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="border rounded text-center p-5 mb-4">
+
+                        <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary mb-3"></i>
+
+                        <h5>Drag & Drop Log Files</h5>
+
+                        <p class="text-muted">
+
+                            Supported Formats:
+                            EVTX • SYSLOG • JSON • CSV
+
+                        </p>
+
+                        <form action="{{ url_for('log_collection.upload_log') }}"
+      method="POST"
+      enctype="multipart/form-data">
+
+    <input
+        type="file"
+        name="log_file"
+        class="form-control"
+        required>
+
+    <button
+        type="submit"
+        class="btn btn-primary mt-3">
+        Upload Log
+    </button>
+
+</form>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header">
+
+                    Collector Status
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span>Status</span>
+
+                        <span class="badge bg-success">
+
+                            Running
+
+                        </span>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span>Last Collection</span>
+
+                        <strong>
+
+    {% if last_collection %}
+
+        {{ last_collection }}
+
+    {% else %}
+
+        Never
+
+    {% endif %}
+
+</strong>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+
+                        <span>Files Parsed</span>
+
+                        <strong>{{ files_parsed }}</strong>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+
+                        <span>Failed Imports</span>
+
+                        <strong>{{ failed_imports }}</strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= Sources ================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+
+            Supported Log Sources
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row text-center g-3">
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <i class="fa-brands fa-windows fa-2x text-info mb-2"></i>
+                        <h6>Windows Event Logs</h6>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <i class="fa-brands fa-linux fa-2x text-success mb-2"></i>
+                        <h6>Linux Syslog</h6>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <i class="fa-solid fa-fire fa-2x text-danger mb-2"></i>
+                        <h6>Firewall Logs</h6>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="border rounded p-3">
+                        <i class="fa-solid fa-globe fa-2x text-warning mb-2"></i>
+                        <h6>Web Server Logs</h6>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ================= Recent Uploads ================= -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <span>
+
+                Recent Uploaded Logs
+
+            </span>
+
+            <button class="btn btn-primary btn-sm">
+
+                View All
+
+            </button>
+
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle mb-0">
+
+                <thead>
+
+                    <tr>
+
+                        <th>Filename</th>
+
+                        <th>Type</th>
+
+                        <th>Status</th>
+
+                        <th>Uploaded</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+               {% for upload in uploads %}
+
+<tr>
+
+    <td>{{ upload[1] }}</td>
+
+    <td>
+        <span class="badge bg-secondary">
+            {{ upload[4] }}
+        </span>
+    </td>
+
+    <td>
+        <span class="badge bg-success">
+            {{ upload[6] }}
+        </span>
+    </td>
+
+    <td>{{ upload[7].strftime('%d-%m-%Y %H:%M') }}</td>
+
+    <td>
+
+        <a href="#"
+           class="btn btn-sm btn-outline-primary">
+            View
+        </a>
+
+        <a href="{{ url_for('log_collection.delete_upload', upload_id=upload[0]) }}"
+           class="btn btn-sm btn-outline-danger"
+           onclick="return confirm('Delete this uploaded log?');">
+
+            Delete
+
+        </a>
+
+    </td>
+
+</tr>
+
+{% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

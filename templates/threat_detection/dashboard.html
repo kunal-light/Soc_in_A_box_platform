@@ -1,0 +1,768 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Threat Detection Dashboard
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <div>
+
+        <h2 class="fw-bold">
+
+            <i class="fa-solid fa-shield-halved text-danger"></i>
+
+            Threat Detection Dashboard
+
+        </h2>
+
+        <p class="text-muted mb-0">
+
+            Monitor, investigate and manage detected threats.
+
+        </p>
+
+    </div>
+
+    <div>
+
+        <button class="btn btn-primary">
+
+            <i class="fa-solid fa-download"></i>
+
+            Export Report
+
+        </button>
+
+    </div>
+
+</div>
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-3 col-md-6">
+
+    <div class="card border-start border-primary border-4 shadow h-100">
+
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+
+                    <h6 class="text-muted">
+
+                        Total Alerts
+
+                    </h6>
+
+                    <h2>
+
+                        {{ total_alerts }}
+
+                    </h2>
+
+                </div>
+
+                <div>
+
+                    <i class="fa-solid fa-triangle-exclamation fa-2x text-primary"></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Critical</h6>
+
+                    <h2 class="text-danger">
+
+                        {{ critical_alerts }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>High</h6>
+
+                    <h2 class="text-warning">
+
+                        {{ high_alerts }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <div class="card shadow border-0 h-100">
+
+                <div class="card-body text-center">
+
+                    <h6>Medium</h6>
+
+                    <h2 class="text-info">
+
+                        {{ medium_alerts }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+<div class="row mb-4">
+
+    <div class="col-lg-8">
+
+        <div class="card shadow border-0 h-100">
+
+            <div class="card-header bg-white">
+
+                <h5 class="mb-0">
+                    <i class="fa-solid fa-chart-line text-primary"></i>
+                    Threat Trend
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="trendChart" ></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card shadow border-0 h-100">
+
+            <div class="card-header bg-white">
+
+                <h5 class="mb-0">
+                    <i class="fa-solid fa-chart-pie text-danger"></i>
+                    Severity Distribution
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <canvas id="severityChart"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="row mb-4">
+
+    <!-- Top Detection Rules -->
+
+    <div class="col-lg-6">
+
+        <div class="card shadow border-0 h-100">
+
+            <div class="card-header bg-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fa-solid fa-list-check text-primary"></i>
+
+                    Top Detection Rules
+
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-hover">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Rule</th>
+
+                            <th class="text-end">Alerts</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for row in top_rules %}
+
+                        <tr>
+
+                            <td>{{ row[0] }}</td>
+
+                            <td class="text-end">
+
+                                <span class="badge bg-primary">
+
+                                    {{ row[1] }}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Top Source IPs -->
+
+    <div class="col-lg-6">
+
+        <div class="card shadow border-0 h-100">
+
+            <div class="card-header bg-white">
+
+                <h5 class="mb-0">
+
+                    <i class="fa-solid fa-network-wired text-success"></i>
+
+                    Top Source IPs
+
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-hover">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Source IP</th>
+
+                            <th class="text-end">Alerts</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for row in top_source_ips %}
+
+                        <tr>
+
+                            <td>{{ row[0] }}</td>
+
+                            <td class="text-end">
+
+                                <span class="badge bg-success">
+
+                                    {{ row[1] }}
+
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+    <div class="card shadow-sm border-0 mb-4">
+
+    <div class="card-body">
+
+        <form method="GET" action="/threat-detection">
+
+            <div class="row g-3">
+
+                <div class="col-md-5">
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="search"
+                        placeholder="Search Rule or Description..."
+                        value="{{ search }}"
+                    >
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select
+                        class="form-select"
+                        name="severity">
+
+                        <option value="">All Severity</option>
+
+                        <option value="CRITICAL"
+                            {% if severity_filter=="CRITICAL" %}selected{% endif %}>
+                            Critical
+                        </option>
+
+                        <option value="HIGH"
+                            {% if severity_filter=="HIGH" %}selected{% endif %}>
+                            High
+                        </option>
+
+                        <option value="MEDIUM"
+                            {% if severity_filter=="MEDIUM" %}selected{% endif %}>
+                            Medium
+                        </option>
+
+                        <option value="LOW"
+                            {% if severity_filter=="LOW" %}selected{% endif %}>
+                            Low
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <select
+                        class="form-select"
+                        name="status">
+
+                        <option value="">All Status</option>
+
+                        <option value="OPEN"
+                            {% if status_filter=="OPEN" %}selected{% endif %}>
+                            OPEN
+                        </option>
+
+                        <option value="INVESTIGATING"
+                            {% if status_filter=="INVESTIGATING" %}selected{% endif %}>
+                            INVESTIGATING
+                        </option>
+
+                        <option value="RESOLVED"
+                            {% if status_filter=="RESOLVED" %}selected{% endif %}>
+                            RESOLVED
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="col-md-3 d-grid">
+
+                    <button
+                        class="btn btn-primary">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        Search
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+    <div class="card shadow-sm border-0 mt-4">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+
+                Recent Threat Alerts
+
+            </h5>
+
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Rule</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Risk</th>
+                    <th>MITRE</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for alert in recent_alerts %}
+
+                <tr>
+
+                    <td>{{ alert[0] }}</td>
+
+<td>{{ alert[1] }}</td>
+
+<td>{{ alert[2] }}</td>
+
+<td>
+
+    {% if alert[3]|upper == "CRITICAL" %}
+
+        <span class="badge bg-danger">
+            {{ alert[3] }}
+        </span>
+
+    {% elif alert[3]|upper == "HIGH" %}
+
+        <span class="badge bg-warning text-dark">
+            {{ alert[3] }}
+        </span>
+
+    {% elif alert[3]|upper == "MEDIUM" %}
+
+        <span class="badge bg-info text-dark">
+            {{ alert[3] }}
+        </span>
+
+    {% else %}
+
+        <span class="badge bg-secondary">
+            {{ alert[3] }}
+        </span>
+
+    {% endif %}
+
+</td>
+
+
+<!-- Risk -->
+
+<td>
+
+    {% if alert[7] is not none %}
+
+        <div>
+            <strong>{{ alert[7] }}</strong>
+        </div>
+
+        {% if alert[8] %}
+
+            {% if alert[8]|upper == "CRITICAL" %}
+
+                <span class="badge bg-danger">
+                    {{ alert[8] }}
+                </span>
+
+            {% elif alert[8]|upper == "HIGH" %}
+
+                <span class="badge bg-warning text-dark">
+                    {{ alert[8] }}
+                </span>
+
+            {% elif alert[8]|upper == "MEDIUM" %}
+
+                <span class="badge bg-info text-dark">
+                    {{ alert[8] }}
+                </span>
+
+            {% elif alert[8]|upper == "LOW" %}
+
+                <span class="badge bg-success">
+                    {{ alert[8] }}
+                </span>
+
+            {% else %}
+
+                <span class="badge bg-secondary">
+                    {{ alert[8] }}
+                </span>
+
+            {% endif %}
+
+        {% endif %}
+
+    {% else %}
+
+        <span class="text-muted">-</span>
+
+    {% endif %}
+
+</td>
+
+
+<!-- MITRE -->
+
+<td>
+
+    {% if alert[9] %}
+
+        <strong>{{ alert[9] }}</strong>
+
+        {% if alert[10] %}
+            <br>
+            <small class="text-muted">
+                {{ alert[10] }}
+            </small>
+        {% endif %}
+
+    {% else %}
+
+        <span class="text-muted">-</span>
+
+    {% endif %}
+
+</td>
+
+
+<!-- Description -->
+
+<td>
+    {{ alert[4] }}
+</td>
+
+
+<!-- Status -->
+
+<td>
+
+    {% if alert[5] == "OPEN" %}
+
+        <span class="badge bg-danger">
+            OPEN
+        </span>
+
+    {% elif alert[5] == "INVESTIGATING" %}
+
+        <span class="badge bg-warning text-dark">
+            INVESTIGATING
+        </span>
+
+    {% else %}
+
+        <span class="badge bg-success">
+            RESOLVED
+        </span>
+
+    {% endif %}
+
+</td>
+<td class="text-center">
+
+    <div class="btn-group" role="group">
+
+        <a href="/threat-detection/view/{{ alert[0] }}"
+           class="btn btn-sm btn-outline-primary">
+
+            <i class="fa-solid fa-eye"></i>
+
+        </a>
+
+        <a href="/threat-detection/investigate/{{ alert[0] }}"
+           class="btn btn-sm btn-outline-warning">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+        </a>
+
+        <a href="/threat-detection/resolve/{{ alert[0] }}"
+           class="btn btn-sm btn-outline-success">
+
+            <i class="fa-solid fa-check"></i>
+ 
+
+        </a>
+        <a href="/incident-response/create/{{ alert[0] }}"
+   class="btn btn-sm btn-outline-danger"
+   title="Create Incident">
+
+    <i class="fa-solid fa-triangle-exclamation"></i>
+
+</a>
+
+
+    </div>
+
+</td>
+                </tr>
+
+               {% endfor %}
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+{% endblock %}
+   console.log("Script started");
+{% block scripts %}
+<script>
+const trendCtx = document.getElementById('trendChart');
+console.log(trendCtx);
+new Chart(trendCtx, {
+
+    type: 'line',
+
+    data: {
+
+        labels: [
+            {% for row in trend %}
+                "{{ row[0] }}",
+            {% endfor %}
+        ],
+
+        datasets: [
+
+            {
+
+                label: "Threats",
+
+                data: [
+                    {% for row in trend %}
+                        {{ row[1] }},
+                    {% endfor %}
+                ],
+
+                borderColor: "#0d6efd",
+
+                backgroundColor: "rgba(13,110,253,0.15)",
+
+                tension: 0.4,
+
+                fill: true
+
+            }
+
+        ]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+
+                display: false
+
+            }
+
+        }
+
+    }
+
+});
+
+
+const severityCtx = document.getElementById('severityChart');
+
+new Chart(severityCtx, {
+
+    type: 'doughnut',
+
+    data: {
+
+        labels: [
+            {% for row in severity_chart %}
+                "{{ row[0] }}",
+            {% endfor %}
+        ],
+
+        datasets: [
+
+            {
+
+                data: [
+                    {% for row in severity_chart %}
+                        {{ row[1] }},
+                    {% endfor %}
+                ]
+
+            }
+
+        ]
+
+    },
+
+    options: {
+
+        responsive: true
+
+    }
+
+});
+</script>
+{% endblock %}

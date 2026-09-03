@@ -1,0 +1,76 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Assign Analyst{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <h2 class="mb-4">
+
+        Assign Analyst
+
+    </h2>
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Incident
+
+                    </label>
+
+                    <input
+                        class="form-control"
+                        value="{{ incident[1] }}"
+                        readonly>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Assign To
+
+                    </label>
+
+                    <select
+                        class="form-select"
+                        name="assigned_to">
+
+                        <option value="">Select Analyst</option>
+
+                        <option>Alice</option>
+
+                        <option>Bob</option>
+
+                        <option>Charlie</option>
+
+                        <option>SOC Team</option>
+
+                    </select>
+
+                </div>
+
+                <button class="btn btn-warning">
+
+                    Assign
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

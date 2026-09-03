@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block title %}Reports | SOC-in-a-Box{% endblock %}
+{% block page_title %}Automated Reports{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8"><div class="card shadow-sm h-100"><div class="card-body">
+      <h4>Threat Intelligence Reporting</h4>
+      <p class="text-muted mb-0">Generate point-in-time SOC reports from live PostgreSQL IOC, alert, domain reputation, and threat-source data.</p>
+    </div></div></div>
+    <div class="col-lg-4"><div class="card shadow-sm h-100"><div class="card-body d-flex flex-column justify-content-center">
+      <form method="POST" action="{{ url_for('generate_report') }}">
+        <button class="btn btn-primary w-100" type="submit"><i class="fa-solid fa-file-circle-plus me-2"></i>Generate PDF Report</button>
+      </form>
+      <small class="text-muted mt-3">The report captures the current platform state.</small>
+    </div></div></div>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between"><span>Generated Reports</span><span class="badge bg-primary">{{ reports|length }} Reports</span></div>
+    <div class="table-responsive"><table class="table table-hover align-middle mb-0">
+      <thead><tr><th>Report File</th><th>Generated</th><th>Size</th><th>Action</th></tr></thead>
+      <tbody>
+      {% for report in reports %}
+        <tr>
+          <td><i class="fa-solid fa-file-lines text-primary me-2"></i>{{ report.name }}</td>
+          <td>{{ report.modified.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+          <td>{{ report.size_kb }} KB</td>
+          <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('download_report', filename=report.name) }}"><i class="fa-solid fa-download me-1"></i>Download</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4" class="text-center text-muted py-5">No reports yet. Generate your first SOC threat intelligence report.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+</div>
+{% endblock %}

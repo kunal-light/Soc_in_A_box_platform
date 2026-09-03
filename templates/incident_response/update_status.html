@@ -1,0 +1,86 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Update Status{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <h2 class="mb-4">
+
+        Update Incident Status
+
+    </h2>
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Incident
+
+                    </label>
+
+                    <input
+                        class="form-control"
+                        value="{{ incident[1] }}"
+                        readonly>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+
+                        Status
+
+                    </label>
+
+                    <select
+                        class="form-select"
+                        name="status">
+
+                        <option value="OPEN"
+                            {% if incident[2]=="OPEN" %}selected{% endif %}>
+                            OPEN
+                        </option>
+
+                        <option value="INVESTIGATING"
+                            {% if incident[2]=="INVESTIGATING" %}selected{% endif %}>
+                            INVESTIGATING
+                        </option>
+
+                        <option value="CONTAINED"
+                            {% if incident[2]=="CONTAINED" %}selected{% endif %}>
+                            CONTAINED
+                        </option>
+
+                        <option value="RESOLVED"
+                            {% if incident[2]=="RESOLVED" %}selected{% endif %}>
+                            RESOLVED
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <button class="btn btn-success">
+
+                    Update Status
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+
+{% block title %}Domain Reputation | SOC-in-a-Box{% endblock %}
+{% block page_title %}Domain Reputation{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <small>Total Checks</small><h2>{{ total_checks }}</h2>
+                <i class="fa-solid fa-globe fa-2x float-end text-primary"></i>
+            </div></div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <small>High Risk</small><h2>{{ high_risk_count }}</h2>
+                <i class="fa-solid fa-skull-crossbones fa-2x float-end text-danger"></i>
+            </div></div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <small>Suspicious</small><h2>{{ suspicious_count }}</h2>
+                <i class="fa-solid fa-triangle-exclamation fa-2x float-end text-warning"></i>
+            </div></div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm h-100"><div class="card-body">
+                <small>Other / Low Risk</small><h2>{{ low_risk_count }}</h2>
+                <i class="fa-solid fa-circle-check fa-2x float-end text-success"></i>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">Domain Reputation Search</div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('domain_reputation_dashboard') }}">
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <label class="form-label">Domain</label>
+                                <input class="form-control" type="text" name="search"
+                                       value="{{ search }}" placeholder="Search checked domains...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Reputation</label>
+                                <select class="form-select" name="risk">
+                                    <option value="">All Statuses</option>
+                                    {% for status in statuses %}
+                                    <option value="{{ status }}" {% if selected_risk == status %}selected{% endif %}>
+                                        {{ status }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end gap-2">
+                                <button class="btn btn-primary w-100" type="submit">Search</button>
+                                <a class="btn btn-outline-light" href="{{ url_for('domain_reputation_dashboard') }}">Reset</a>
+                            </div>
+                        </div>
+                    </form>
+                    <p class="small text-muted mt-3 mb-0">
+                        This explorer displays reputation checks already persisted by the existing domain reputation module.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">Reputation Distribution</div>
+                <div class="card-body"><canvas id="reputationChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Domain Reputation History</span>
+            <span class="badge bg-primary">{{ filtered_total }} Results</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr><th>Domain</th><th>OTX Pulse Count</th><th>Reputation</th><th>Checked At</th></tr>
+                </thead>
+                <tbody>
+                {% for domain in domains %}
+                    <tr>
+                        <td><code class="ioc-value">{{ domain[0] }}</code></td>
+                        <td>{{ domain[1] }}</td>
+                        <td>
+                            <span class="badge
+                                {% if domain[2]|upper == 'HIGH RISK' %}bg-danger
+                                {% elif domain[2]|upper == 'SUSPICIOUS' %}bg-warning text-dark
+                                {% else %}bg-success{% endif %}">
+                                {{ domain[2] }}
+                            </span>
+                        </td>
+                        <td>{{ domain[3] }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-center text-muted py-5">No matching domain reputation records.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="card-body border-top border-secondary">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('domain_reputation_dashboard', page=page-1, search=search, risk=selected_risk) }}">Previous</a>
+                    </li>
+                    {% set start_page = [1, page - 2]|max %}
+                    {% set end_page = [total_pages, page + 2]|min %}
+                    {% for p in range(start_page, end_page + 1) %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('domain_reputation_dashboard', page=p, search=search, risk=selected_risk) }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('domain_reputation_dashboard', page=page+1, search=search, risk=selected_risk) }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script id="domain-reputation-data" type="application/json">
+{{ {"labels": reputation_labels, "values": reputation_values} | tojson }}
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const el = document.getElementById("domain-reputation-data");
+    if (!el || typeof Chart === "undefined") return;
+    const data = JSON.parse(el.textContent);
+    const canvas = document.getElementById("reputationChart");
+    if (!canvas) return;
+
+    new Chart(canvas, {
+        type: "doughnut",
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.values,
+                backgroundColor: ["#ef4444", "#f59e0b", "#22c55e", "#3b82f6", "#8b5cf6"],
+                borderColor: "#1e293b",
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "65%",
+            plugins: {
+                legend: {
+                    position: "bottom",
+                    labels: {usePointStyle: true}
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
